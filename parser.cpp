@@ -1,115 +1,121 @@
 
+/** Parser based on the libxml++ example */
+
 #include <libxml++/libxml++.h>
 #include <iostream>
+#include <vector>
+#include <map>
+#include <algorithm>
 
-void print_indentation(unsigned int indentation)
-{
-  for(unsigned int i = 0; i < indentation; ++i)
-    std::cout << " ";
-}
+using namespace std;
 
-void print_node(const xmlpp::Node* node, unsigned int indentation = 0)
-{
-  std::cout << std::endl; //Separate nodes by an empty line.
-  
+class tnode {
+  public:
+    int id;
+    bool last;
+    tnode * parent;
+    tnode(int _id, bool _last, tnode * _parent):id(_id),last(_last),parent(_parent) {}
+    bool less(const tnode & n) const {
+      if(parent==NULL) return true;
+      if(n.parent==NULL) return false;
+      if(id<n.id) return true;
+      if(id>n.id) return false;
+      return (*parent).less(*n.parent);
+    }
+    bool operator<(const tnode & n) const {
+      if(parent==NULL) return true;
+      if(n.parent==NULL) return false;
+      if((*parent).less(*(n.parent))) return true;
+      return false;
+    }
+};
+
+vector<tnode *> nodes;
+map<string, int> ids;
+int max_id = 1;
+
+void process_node(const xmlpp::Node* node, tnode * parent, bool last) {
   const xmlpp::ContentNode* nodeContent = dynamic_cast<const xmlpp::ContentNode*>(node);
   const xmlpp::TextNode* nodeText = dynamic_cast<const xmlpp::TextNode*>(node);
   const xmlpp::CommentNode* nodeComment = dynamic_cast<const xmlpp::CommentNode*>(node);
 
-  if(nodeText && nodeText->is_white_space()) //Let's ignore the indenting - you don't always want to do this.
-    return;
-    
   Glib::ustring nodename = node->get_name();
 
-  if(!nodeText && !nodeComment && !nodename.empty()) //Let's not say "name: text".
-  {
-    print_indentation(indentation);
-    std::cout << "Node name = " << node->get_name() << std::endl;
-    std::cout << "Node name = " << nodename << std::endl;
-  }
-  else if(nodeText) //Let's say when it's text. - e.g. let's say what that white space is.
-  {
-    print_indentation(indentation);
-    std::cout << "Text Node" << std::endl;
-  }
-
   //Treat the various node types differently: 
-  if(nodeText)
-  {
-    print_indentation(indentation);
-    std::cout << "text = \"" << nodeText->get_content() << "\"" << std::endl;
+  if(nodeText) { // text
+    return;
   }
-  else if(nodeComment)
-  {
-    print_indentation(indentation);
-    std::cout << "comment = " << nodeComment->get_content() << std::endl;
+  else if(nodeComment) { // comment
+    return;
   }
-  else if(nodeContent)
-  {
-    print_indentation(indentation);
-    std::cout << "content = " << nodeContent->get_content() << std::endl;
+  else if(nodeContent) { // content
+    return;
   }
-  else if(const xmlpp::Element* nodeElement = dynamic_cast<const xmlpp::Element*>(node))
-  {
-    //A normal Element node:
 
-    //line() works only for ElementNodes.
-    print_indentation(indentation);
-    std::cout << "     line = " << node->get_line() << std::endl;
-
+  string snode = nodename;
+  if(ids[snode]==0) {
+    ids[snode] = max_id++;
+  }
+  tnode * act_node = new tnode(ids[snode],last,parent);
+  
+  bool hasAttr = false;
+  if(const xmlpp::Element* nodeElement = dynamic_cast<const xmlpp::Element*>(node)) { //A normal Element node:
     //Print attributes:
     const xmlpp::Element::AttributeList& attributes = nodeElement->get_attributes();
-    for(xmlpp::Element::AttributeList::const_iterator iter = attributes.begin(); iter != attributes.end(); ++iter)
-    {
+    for(xmlpp::Element::AttributeList::const_iterator iter = attributes.begin(); iter != attributes.end(); ++iter) {
       const xmlpp::Attribute* attribute = *iter;
-      print_indentation(indentation);
-      std::cout << "  Attribute " << attribute->get_name() << " = " << attribute->get_value() << std::endl;
-    }
-
-    const xmlpp::Attribute* attribute = nodeElement->get_attribute("title");
-    if(attribute)
-    {
-      std::cout << "title found: =" << attribute->get_value() << std::endl;
-      
+      string aname = attribute->get_name();
+      if(ids[aname]==0)
+        ids[aname] = max_id++;
+      nodes.push_back(new tnode(ids[aname],false,act_node));
+      hasAttr = true;
     }
   }
   
-  if(!nodeContent)
-  {
+  if(!nodeContent) {
     //Recurse through child nodes:
     xmlpp::Node::NodeList list = node->get_children();
-    for(xmlpp::Node::NodeList::iterator iter = list.begin(); iter != list.end(); ++iter)
-    {
-      print_node(*iter, indentation + 2); //recursive
+    xmlpp::Node::NodeList::iterator iter = list.begin();
+    if(iter==list.end() && hasAttr) { // last attribute was a 1
+      nodes[nodes.size()-1]->last=true;
+    }
+    for(; iter != list.end(); ++iter) {
+      bool last = false;
+      ++iter; if(iter==list.end()) last = true; --iter;
+      process_node(*iter, act_node, last);
     }
   }
 }
 
+
 int main(int argc, char* argv[])
 {
-  std::string filepath;
-  if(argc > 1 )
-    filepath = argv[1]; //Allow the user to specify a different XML file to parse.
-  else
-    filepath = "example.xml";
+  string filepath, fileout;
+  if(argc == 3 ) {
+    filepath = argv[1]; 
+    fileout = argv[2];
+  } else {
+    cout << "usage: %s <input> <output>\n" << endl;
+    return 0;
+  }
   
-  try
-  {
+  try {
     xmlpp::DomParser parser;
     parser.set_validate();
     parser.set_substitute_entities(); //We just want the text to be resolved/unescaped automatically.
     parser.parse_file(filepath);
-    if(parser)
-    {
+    if(parser) {
       //Walk the tree:
       const xmlpp::Node* pNode = parser.get_document()->get_root_node(); //deleted by DomParser.
-      print_node(pNode);
+      process_node(pNode, NULL, 0);
     }
+    sort(nodes.begin(),nodes.begin());
+    for(int i=0;i<nodes.size();i++)
+      cout << "alpha=" << nodes[i]->id << "  last=" << nodes[i]->last << endl;
   }
-  catch(const std::exception& ex)
-  {
-    std::cout.flush();
-    std::cout << "Exception caught: " << ex.what() << std::endl;
+  catch(const std::exception& ex) {
+    cout.flush();
+    cout << "Exception caught: " << ex.what() << std::endl;
   }
 
   return 0;
