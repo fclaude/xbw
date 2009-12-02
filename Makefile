@@ -6,4 +6,4 @@ CPPFLAGS=$(LXMLFLAGS) -g3 -Wall -pedantic
 #CPPFLAGS=$(LXMLFLAGS) -O3 -Wall -pedantic 
 
 all:
-	$(CPP) $(CFLAGS) -o parser parser.cpp
+	$(CPP) $(CPPFLAGS) -o parser parser.cpp
