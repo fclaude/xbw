@@ -73,6 +73,7 @@ void answerQueries() {
     string s;
     cout << "> ";
     cin >> s;
+    cout << endl;
     if(s.length()==0) break;
     if(s=="exit" || s=="quit") break;
     if(s=="size") {
@@ -88,6 +89,7 @@ void answerQueries() {
       cout << "  - quit: finishes the program" << endl;
       cout << "  - exit: finishes the program" << endl;
       cout << endl;
+      continue;
     }
     uint len, lres;
     uint * qry = parse(s,&len);
