@@ -1,5 +1,5 @@
 
-all: clean libcompact tests
+all: libcompact tests
 
 
 doc:

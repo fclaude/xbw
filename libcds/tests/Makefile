@@ -13,6 +13,7 @@ LIB=../lib/libcds.a
 	@$(CPP) $(CPPFLAGS) -c $< -o $@
 
 all: $(OBJECTS) $(BIN)
+	@echo " [MSG] Done compiling tests"
 
 static_bitsequence_test:
 	@echo " [C++] Building static_bitsequence_test"

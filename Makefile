@@ -9,12 +9,25 @@ LCDSLIB=./libcds/lib/libcds.a
 CPPFLAGS= -O3 -Wall 
 
 all:
-	cd libcds; make
-	$(CPP) $(CPPFLAGS) $(LXMLFLAGS) $(LCDSFLAGS) -o parser parser.cpp
-	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -c xbw.cpp
-	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -o engine engine.cpp xbw.o $(LCDSLIB)
-	gcc -o gen_xml gen_xml.c
+	@echo " [MSG] Building libcds"
+	@make --no-print-directory -C libcds
+	@echo " [C++] Compiling gen_xml.cpp"
+	@gcc -w -c gen_xml.c
+	@echo " [C++] Compiling parser.cpp"
+	@$(CPP) $(CPPFLAGS) $(LXMLFLAGS) $(LCDSFLAGS) -c parser.cpp
+	@echo " [C++] Compiling xbw.cpp"
+	@$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -c xbw.cpp
+	@echo " [C++] Compiling engine.cpp"
+	@$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -c engine.cpp 
+	@echo " [C++] Building parser"
+	@$(CPP) $(CPPFLAGS) $(LXMLFLAGS) $(LCDSFLAGS) -o parser parser.o
+	@echo " [C++] Building engine"
+	@$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -o engine engine.o xbw.o $(LCDSLIB)
+	@echo " [C++] Building gen_xml"
+	@gcc -w -o gen_xml gen_xml.o
 
 clean:
-	cd libcds; make clean
-	rm -f gen_xml engine xbw.o parser
+	@make --no-print-directory -C libcds clean
+	@echo " [CLN] Cleaning binaries"
+	@rm -f gen_xml engine parser
+	@rm -f *.o
