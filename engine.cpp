@@ -19,14 +19,31 @@ XBW * index;
 
 uint * parse(string s, uint * len) {
   vector<uint> res;
+  if(s.find("//")!=0) {
+    cout << "  ** Incorrect query" << endl;
+    *len = 0;
+    return NULL;
+  }
   s = s.substr(2);
   uint pos = s.find("/");
   while(pos!=string::npos) {
-    res.push_back(ids[s.substr(0,pos)]);
+    uint id = ids[s.substr(0,pos)];
+    if(id==0) {
+      cout << "  ** Node " << s.substr(0,pos) << " is not part of the document" << endl;
+      *len = 0;
+      return NULL;
+    }
+    res.push_back(id);
     s = s.substr(pos+1);
     pos = s.find("/");
   }
-  res.push_back(ids[s]);
+  uint id = ids[s];
+  if(id==0) {
+    cout << "  ** Node " << s.substr(0,pos) << " is not part of the document" << endl;
+    *len = 0;
+    return NULL;
+  }
+  res.push_back(id);
   *len = res.size();
   uint * ret = new uint[*len];
   for(uint i=0;i<*len;i++) {
@@ -49,7 +66,7 @@ double stop_clock() {
 }
 /* end Time meassuring */
 
-#define REP 1
+#define REP 100
 
 void answerQueries() {
   while(!cin.eof()) {
@@ -57,24 +74,39 @@ void answerQueries() {
     cout << "> ";
     cin >> s;
     if(s.length()==0) break;
+    if(s=="exit" || s=="quit") break;
+    if(s=="size") {
+      cout << "  Index size: " << index->size()/1024.0 << "Kb" << endl;
+      cout << endl;
+      continue;
+    }
+    if(s=="help") {
+      cout << "  Valid commands: " << endl;
+      cout << "  - help: shows this message" << endl;
+      cout << "  - //a/.../b: searches for path a/.../b" << endl;
+      cout << "  - size: shows the index size" << endl;
+      cout << "  - quit: finishes the program" << endl;
+      cout << "  - exit: finishes the program" << endl;
+      cout << endl;
+    }
     uint len, lres;
     uint * qry = parse(s,&len);
-    start_clock();
     uint * res = NULL;
-    for(uint k=0;k<REP;k++) {
+    if(len>0) {
+      start_clock();
+      for(uint k=0;k<REP;k++) {
+        res = index->subPathSearch(qry,len,&lres);
+        if(res!=NULL)
+          delete [] res;
+      }
       res = index->subPathSearch(qry,len,&lres);
-      if(res!=NULL)
-        delete [] res;
+      double time = 1000.*stop_clock()/(REP+1);
+      //cout << "  Results for " << s << endl;
+      cout << "  (results: " << lres << " | time: " << time << "ms | index size: " << index->size()/1024 << "Kb)" << endl;
     }
-    res = index->subPathSearch(qry,len,&lres);
-    double time = 1000.*stop_clock()/(REP+1);
-    cout << " Results for " << s << endl;
-    //for(uint i=0;i<lres;i++) {
-    //  cout << "  * " << res[i] << "  map=" << mapping[res[i]] << "  tag=" << rids[index->getLabel(res[i])] << endl;
-    //}
-    cout << " (results: " << lres << " | time: " << time << "ms | index size: " << index->size()/1024 << "Kb)" << endl;
     cout << endl;
-    delete [] res;
+    if(res!=NULL)
+      delete [] res;
     delete [] qry;
   }
   cout << endl;

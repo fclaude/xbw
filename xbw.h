@@ -123,6 +123,8 @@ class XBW {
     static_bitsequence * A;
 
     uint * alphaTmp;
+    uint * alphaSeq;
+    uint balpha;
 
 };
 

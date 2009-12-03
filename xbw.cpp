@@ -46,9 +46,16 @@ XBW::XBW(const string & filename, const string & params) {
     cout << A->access(i);
   cout << endl;*/
 
+  //alphaTmp = alphaInt;
+  balpha = bits(maxLabel);
+  alphaSeq = new uint[uint_len(nodesCount,balpha)];
+  for(uint i=0;i<uint_len(nodesCount,balpha);i++)
+    alphaSeq[i] = 0;
+  for(uint i=0;i<nodesCount;i++)
+    set_field(alphaSeq,balpha,i,alphaInt[i]);
+
   // Free the temporary arrays
-  //delete [] alphaInt;
-  alphaTmp = alphaInt;
+  delete [] alphaInt;
   delete [] lastInt;
   //delete [] leafInt;
   delete [] AInt;
@@ -62,7 +69,10 @@ XBW::~XBW() {
 }
 
 uint XBW::size() const {
-  return sizeof(XBW)+alpha->size()+last->size()+sizeof(uint)*nodesCount;
+  uint s = sizeof(XBW)+alpha->size()+last->size();
+  //s += sizeof(uint)*nodesCount;
+  s += uint_len(nodesCount,balpha)*sizeof(uint);
+  return s;
 }
 
 void XBW::getChildren(const uint n, uint * ini, uint * fin) const {
@@ -71,7 +81,9 @@ void XBW::getChildren(const uint n, uint * ini, uint * fin) const {
     *ini=1;
     return;
   }
-  uint c = alphaTmp[n]; //alpha->access(n);
+  //uint c = alphaTmp[n]; 
+  //uint c = alpha->access(n);
+  uint c = get_field(alphaSeq,balpha,n);
   uint r = alpha->rank(c, n);
   uint y = A->select1(c);
   uint z = last->rank1(y-1);
@@ -171,6 +183,8 @@ uint * XBW::subPathSearch(const uint * qry, const uint ql, uint * len) const {
 }
 
 uint XBW::getLabel(const uint n) const {
-  return alphaTmp[n]; //alpha->access(n);
+  //return alphaTmp[n]; 
+  //return alpha->access(n);
+  return get_field(alphaSeq,balpha,n);
 }
 
