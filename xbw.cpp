@@ -54,6 +54,9 @@ XBW::XBW(const string & filename, const string & params) {
   for(uint i=0;i<nodesCount;i++)
     set_field(alphaSeq,balpha,i,alphaInt[i]);
 
+  input.close();
+  delete sbb;
+  delete sbb2;
   // Free the temporary arrays
   delete [] alphaInt;
   delete [] lastInt;
@@ -66,6 +69,7 @@ XBW::~XBW() {
   delete last;
   //delete leaf;
   delete A;
+  delete [] alphaSeq;
 }
 
 uint XBW::size() const {

@@ -108,11 +108,11 @@ void answerQueries() {
       double time = 1000.*stop_clock()/(REP+1);
       //cout << "  Results for " << s << endl;
       cout << "  (results: " << lres << " | time: " << time << "ms | index size: " << index->size()/1024 << "Kb)" << endl;
+      delete [] qry;
     }
     cout << endl;
     if(res!=NULL)
       delete [] res;
-    delete [] qry;
   }
 }
 
@@ -145,5 +145,7 @@ int main(int argc, char ** argv) {
   input2.close();
 
   answerQueries();
+  delete index;
+  delete [] mapping;
 }
 
