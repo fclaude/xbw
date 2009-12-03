@@ -9,6 +9,7 @@ LCDSLIB=./libcds/lib/libcds.a
 CPPFLAGS= -O3 -Wall 
 
 all:
+	cd libcds; make
 	$(CPP) $(CPPFLAGS) $(LXMLFLAGS) $(LCDSFLAGS) -o parser parser.cpp
 	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -c xbw.cpp
 	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -o engine engine.cpp xbw.o $(LCDSLIB)
