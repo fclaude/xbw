@@ -1,12 +1,14 @@
 
 #include "xbw.h"
 
-XBW::XBW(const string filename, string params) {
-  filename += ".xbw";
-  ifstream input(filename.c_str(),ios::binary);
+XBW::XBW(const string & filename, const string & params) {
+  string filename2 = filename+".xbw";
+  ifstream input(filename2.c_str(),ios::binary);
+  assert(input.good());
   
   // Read the number of nodes
   input.read((char*)&nodesCount,sizeof(uint));
+  //cout << "nodesCount=" << nodesCount << endl;
 
   // Read the alpha sequence
   uint * alphaInt = new uint[nodesCount]; 
@@ -17,8 +19,8 @@ XBW::XBW(const string filename, string params) {
   input.read((char*)lastInt,(nodesCount/W+1)*sizeof(uint));
 
   // Read bitmap leaf
-  uint * leafInt = new uint[nodesCount/W+1];
-  input.read((char*)leaf,(nodesCount/W+1)*sizeof(uint));
+  //uint * leafInt = new uint[nodesCount/W+1];
+  //input.read((char*)leafInt,(nodesCount/W+1)*sizeof(uint));
 
   // Initialize and compute the max label
   maxLabel = 0;
@@ -26,51 +28,41 @@ XBW::XBW(const string filename, string params) {
     maxLabel = max(alphaInt[i],maxLabel);
   }
 
-  // Count the number of occs of each tag
-  uint * occ = new uint[maxLabel+1];
-  for(uint i=0;i<=maxLabel;i++)
-    occ[i] = 0;
-  for(uint i=0;i<nodesCount;i++)
-    occ[alphaInt[i]]++;
-
-  // Get the accumulative sum for building A
-  for(uint i=1;i<=maxLabel;i++)
-    occ[i] += occ[i-1];
-
-  // Compute A
   uint * AInt = new uint[nodesCount/W+2];
-  for(uint i=0;i<nodesCount/W+2;i++)
-    AInt[i] = 0;
-  for(uint i=0;i<=maxLabel;i++)
-    bitset(AInt,occ[i]);
+  input.read((char*)AInt,(nodesCount/W+2)*sizeof(uint));
 
   // Create the data structures
-  alphabet_mapper * am = alphabet_mapper_none();
-  wt_coder * wcc = new wt_coder(alphaInt, nodesCount, am);
+  alphabet_mapper * am = new alphabet_mapper_none();
+  //wt_coder * wcc = new wt_coder_huff(alphaInt, nodesCount, am);
   static_bitsequence_builder * sbb = new static_bitsequence_builder_brw32(20);
-  static_sequence_builder * ssb = new static_sequence_builder_wvtree(wcc, sbb, am);
-  alpha = ssb.build(alphaInt, nodesCount);
-  last = sbb.build(lastInt, nodesCount);
-  leaf = sbb.build(leafInt, nodesCount);
-  A = sbb.build(AInt, nodesCount+1);
+  static_bitsequence_builder * sbb2 = new static_bitsequence_builder_sdarray();
+  //static_sequence_builder * ssb = new static_sequence_builder_wvtree(wcc, sbb, am);
+  alpha = new static_sequence_bs(alphaInt, nodesCount, am, sbb2);
+  //alpha = ssb->build(alphaInt, nodesCount);
+  last = sbb->build(lastInt, nodesCount);
+  //leaf = sbb->build(leafInt, nodesCount);
+  A = sbb->build(AInt, nodesCount+1);
+  /*for(uint i=0;i<A->length();i++)
+    cout << A->access(i);
+  cout << endl;*/
 
   // Free the temporary arrays
-  delete [] alphaInt;
+  //delete [] alphaInt;
+  alphaTmp = alphaInt;
   delete [] lastInt;
-  delete [] leafInt;
-  delete [] occ;
+  //delete [] leafInt;
   delete [] AInt;
 }
 
 XBW::~XBW() {
   delete alpha;
   delete last;
-  delete leaf;
+  //delete leaf;
   delete A;
 }
 
 uint XBW::size() const {
-  return sizeof(XBW)+alpha->size()+last->size()+leaf->size();
+  return sizeof(XBW)+alpha->size()+last->size()+sizeof(uint)*nodesCount;
 }
 
 void XBW::getChildren(const uint n, uint * ini, uint * fin) const {
@@ -79,7 +71,7 @@ void XBW::getChildren(const uint n, uint * ini, uint * fin) const {
     *ini=1;
     return;
   }
-  uint c = alpha->access(n);
+  uint c = alphaTmp[n]; //alpha->access(n);
   uint r = alpha->rank(c, n);
   uint y = A->select1(c);
   uint z = last->rank1(y-1);
@@ -131,7 +123,7 @@ uint XBW::getParent(const uint n) const {
 }
 
 bool XBW::isLeaf(const uint n) const {
-  return leaf->access(n);
+  return maxLabel==getLabel(n);
 }
 
 void XBW::subPathSearch(const uint * qry, const uint ql, uint * ini, uint * fin) const {
@@ -142,6 +134,7 @@ void XBW::subPathSearch(const uint * qry, const uint ql, uint * ini, uint * fin)
   }
   uint first = A->select1(qry[0]);
   uint last  = A->select1(qry[0]+1)-1;
+  //cout << "first=" << first << " last=" << last << endl;
   for(uint i=1;i<ql-1;i++) {
     uint k1 = alpha->rank(qry[i],first-1);
     uint z1 = alpha->select(qry[i], k1+1);
@@ -154,6 +147,7 @@ void XBW::subPathSearch(const uint * qry, const uint ql, uint * ini, uint * fin)
     }
     first = getRankedChild(z1,1);
     last = getRankedChild(z2,getDegree(z2));
+    //cout << "first=" << first << " last=" << last << endl;
   }
   *ini = first;
   *fin = last;
@@ -167,12 +161,16 @@ uint * XBW::subPathSearch(const uint * qry, const uint ql, uint * len) const {
     return NULL;
   }
   uint elem = qry[ql-1];
-  uint k1 = alpha->rank(elem, ini-1);
+  uint k1 = (ini==0?0:alpha->rank(elem, ini-1));
   uint k2 = alpha->rank(elem, fin);
   *len = k2-k1;
   uint * ret = new uint[*len];
-  for(uint p=k1+1; p<k2; p++)
+  for(uint p=k1+1; p<=k2; p++)
     ret[p-k1-1] = alpha->select(elem, p);
   return ret;
+}
+
+uint XBW::getLabel(const uint n) const {
+  return alphaTmp[n]; //alpha->access(n);
 }
 

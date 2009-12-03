@@ -166,6 +166,7 @@ void make___selecttbl(void) {
   built = 1;
   int i,x,r;
   uint buf[1];
+  buf[0] = 0;
 
   for (x = 0; x < 256; x++) {
     __setbits(buf,0,8,x);

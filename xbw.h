@@ -1,10 +1,12 @@
 
 #include <iostream>
 #include <fstream>
+#include <cassert>
 
 #include <basics.h>
 #include <static_sequence.h>
 #include <static_bitsequence.h>
+#include <alphabet_mapper.h>
 
 using namespace std;
 
@@ -22,7 +24,7 @@ class XBW {
      * @param filename file where the index is stored
      * @param params parameters not implemented
      */
-    XBW(const string filename, string params);
+    XBW(const string & filename, const string & params);
 
     /** Destroys the object */
     ~XBW();
@@ -95,6 +97,12 @@ class XBW {
      */
     void getChildren(const uint n, uint * ini, uint * fin) const;
 
+    /** Retrieves the label of node n
+     * @param n node id
+     * @return label of n
+     */
+    uint getLabel(const uint n) const;
+
   protected:
     /** number of nodes in the tree */
     uint nodesCount;
@@ -113,6 +121,8 @@ class XBW {
     
     /** marks the beginning of each symbol run in \pi */
     static_bitsequence * A;
+
+    uint * alphaTmp;
 
 };
 

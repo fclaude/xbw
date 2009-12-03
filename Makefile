@@ -5,10 +5,10 @@ LXMLFLAGS=-I/usr/include/libxml++-2.6 -I/usr/lib/libxml++-2.6/include -I/usr/inc
 LCDSFLAGS=-I./libcds/includes/ 
 LCDSLIB=./libcds/lib/libcds.a 
 
-CPPFLAGS= -g3 -Wall 
-#CPPFLAGS=$(LXMLFLAGS) -O3 -Wall -pedantic 
+#CPPFLAGS= -g3 -Wall 
+CPPFLAGS= -O3 -Wall 
 
 all:
 	$(CPP) $(CPPFLAGS) $(LXMLFLAGS) $(LCDSFLAGS) -o parser parser.cpp
 	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -c xbw.cpp
-	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) $(LCDSLIB) -o engine engine.cpp xbw.o
+	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -o engine engine.cpp xbw.o $(LCDSLIB)

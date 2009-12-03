@@ -1,7 +1,7 @@
 CPP=g++
 
 #CPPFLAGS=-g3 -Wall -O0
-CPPFLAGS=-O9 -Wall -DNDEBUG 
+CPPFLAGS=-O3 -Wall -DNDEBUG 
 
 INCL=-I../includes/
 
