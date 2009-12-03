@@ -1,4 +1,6 @@
-
+/** Simple engine for testint eh xbw implementation
+ * @author Francisco Claude
+ */
 #include <iostream>
 #include <fstream>
 #include <vector>
