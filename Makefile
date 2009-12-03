@@ -13,3 +13,8 @@ all:
 	$(CPP) $(CPPFLAGS) $(LXMLFLAGS) $(LCDSFLAGS) -o parser parser.cpp
 	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -c xbw.cpp
 	$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -o engine engine.cpp xbw.o $(LCDSLIB)
+	gcc -o gen_xml gen_xml.c
+
+clean:
+	cd libcds; make clean
+	rm -f gen_xml engine xbw.o parser
