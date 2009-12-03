@@ -111,7 +111,6 @@ void answerQueries() {
       delete [] res;
     delete [] qry;
   }
-  cout << endl;
 }
 
 int main(int argc, char ** argv) {
