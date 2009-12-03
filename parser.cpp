@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
     filepath = argv[1]; 
     fileout = argv[2];
   } else {
-    cout << "usage: " << argv[0] << " <input> <output>" << endl;
+    cout << "usage: " << argv[0] << " <input file> <output base name>" << endl;
     return 0;
   }
   
