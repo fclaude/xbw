@@ -7,6 +7,8 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <cassert>
+
 #include <basics.h>
 
 using namespace std;
@@ -66,6 +68,7 @@ string tagstr(int id) {
 
 void saveDictionary(string fname) {
   ofstream out(fname.c_str());
+  assert(out.good());
   out << ids.size() << endl;
   for(map<string,int>::iterator iter = ids.begin(); iter != ids.end(); ++iter) 
     out << iter->first << " " << iter->second << endl;
@@ -74,6 +77,7 @@ void saveDictionary(string fname) {
 
 void saveMapping(string fname) {
   ofstream out(fname.c_str(),ios::binary);
+  assert(out.good());
   uint len = nodes.size();
   uint * mapping = new uint[len];
   for(uint i=0;i<nodes.size();i++)
@@ -227,6 +231,7 @@ int main(int argc, char* argv[])
     }
     //cout << "sum=" << sum << endl;
     ofstream out((fileout+".xbw").c_str(), ios::out | ios::binary);
+    assert(out.good());
     out.write((char*)&len,sizeof(uint));
     out.write((char*)alpha,len*sizeof(uint));
     out.write((char*)last,(len/W+1)*sizeof(uint));
