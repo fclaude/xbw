@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <cassert>
 
 using namespace std;
 
@@ -125,6 +126,7 @@ int main(int argc, char ** argv) {
   index = new XBW(basename, "");
 
   ifstream input((basename+".dict").c_str());
+  assert(input.good());
   input >> maxTag;
   for(uint i=0;i<maxTag;i++) {
     string tag;
@@ -136,6 +138,7 @@ int main(int argc, char ** argv) {
   input.close();
 
   ifstream input2((basename+".map").c_str(),ios::binary);
+  assert(input2.good());
   input2.read((char*)&maxNode,sizeof(uint));
   mapping = new uint[maxNode];
   input2.read((char*)mapping,maxNode*sizeof(uint));
