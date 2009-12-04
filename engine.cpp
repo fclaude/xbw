@@ -28,7 +28,7 @@ uint * parse(string s, uint * len) {
     return NULL;
   }
   s = s.substr(2);
-  uint pos = s.find("/");
+  size_t pos = s.find("/");
   while(pos!=string::npos) {
     uint id = ids[s.substr(0,pos)];
     if(id==0) {
