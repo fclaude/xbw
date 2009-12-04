@@ -1,7 +1,7 @@
 CPP=g++
 
 #CPPFLAGS=-g3 -Wall -I../includes/
-CPPFLAGS=-O3 -Wall -DNDEBUG -I../includes/
+CPPFLAGS=-O9 -Wall -DNDEBUG -I../includes/ -m32
 
 OBJECTS=make_bitmap.o static_bitsequence_tester.o static_sequence_tester.o static_sequence_wvtree_test.o static_sequence_gmr_test.o static_sequence_gmr_chunk_test.o static_sequence_wvtree_noptrs_test.o static_bitsequence_test.o static_sequence_bs_test.o text_to_int.o
 BIN=make_bitmap static_sequence_wvtree_test static_sequence_gmr_test static_sequence_gmr_chunk_test static_sequence_wvtree_noptrs_test static_bitsequence_test text_to_int static_sequence_bs_test

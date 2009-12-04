@@ -6,7 +6,9 @@ LCDSFLAGS=-I./libcds/includes/
 LCDSLIB=./libcds/lib/libcds.a 
 
 #CPPFLAGS= -g3 -Wall 
-CPPFLAGS= -O3 -Wall 
+CPPFLAGS= -O3 -Wall -m32
+CPPFLAGS2= -O3 -Wall -m32
+
 
 all:
 	@echo " [MSG] Building libcds"
@@ -14,13 +16,13 @@ all:
 	@echo " [C++] Compiling gen_xml.cpp"
 	@gcc -w -c gen_xml.c
 	@echo " [C++] Compiling parser.cpp"
-	@$(CPP) $(CPPFLAGS) $(LXMLFLAGS) $(LCDSFLAGS) -c parser.cpp
+	@$(CPP) $(CPPFLAGS2) $(LXMLFLAGS) $(LCDSFLAGS) -c parser.cpp
 	@echo " [C++] Compiling xbw.cpp"
 	@$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -c xbw.cpp
 	@echo " [C++] Compiling engine.cpp"
 	@$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -c engine.cpp 
 	@echo " [C++] Building parser"
-	@$(CPP) $(CPPFLAGS) $(LXMLFLAGS) $(LCDSFLAGS) -o parser parser.o
+	@$(CPP) $(CPPFLAGS2) $(LXMLFLAGS) $(LCDSFLAGS) -o parser parser.o
 	@echo " [C++] Building engine"
 	@$(CPP) $(CPPFLAGS) $(LCDSFLAGS) -o engine engine.o xbw.o $(LCDSLIB)
 	@echo " [C++] Building gen_xml"
