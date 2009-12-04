@@ -186,20 +186,22 @@ int main(int argc, char* argv[])
   }
   
   try {
-    xmlpp::DomParser parser;
-    //parser.set_validate();
-    //parser.set_substitute_entities(); 
-    cout << "Parsing file." << endl;
-    parser.parse_file(filepath);
-    if(parser) {
-      const xmlpp::Node* pNode = parser.get_document()->get_root_node(); 
-      cout << "Generating the tree." << endl;
-      process_node(pNode, NULL, 0);
+    {
+      xmlpp::DomParser parser;
+      //parser.set_validate();
+      //parser.set_substitute_entities(); 
+      cout << "Parsing file." << endl;
+      parser.parse_file(filepath);
+      if(parser) {
+        const xmlpp::Node* pNode = parser.get_document()->get_root_node(); 
+        cout << "Generating the tree." << endl;
+        process_node(pNode, NULL, 0);
+      }
+      for(uint i=0;i<nodes.size();i++)
+        if(nodes[i]->id==maxV)
+          nodes[i]->id=max_id;
+      max_id++;
     }
-    for(uint i=0;i<nodes.size();i++)
-      if(nodes[i]->id==maxV)
-        nodes[i]->id=max_id;
-    max_id++;
     cout << "Computing the xbw." << endl;
     sort(nodes.begin(),nodes.end(),compare);
     /*for(unsigned int i=0;i<nodes.size();i++)
