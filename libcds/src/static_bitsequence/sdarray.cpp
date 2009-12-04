@@ -1,9 +1,9 @@
 
 #include <sdarray.h>
-
-#if 0
-typedef unsigned int qword;
-#define logD 4
+#include <limits.h>
+#if ( __WORDSIZE == 64 )
+typedef unsigned long qword;
+#define logD 5
 #else
 typedef unsigned long long qword;
 #define logD 5

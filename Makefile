@@ -7,7 +7,7 @@ LCDSLIB=./libcds/lib/libcds.a
 
 #CPPFLAGS= -g3 -Wall 
 CPPFLAGS= -O3 -Wall -m32
-CPPFLAGS2= -O3 -Wall -m32
+CPPFLAGS2= -O3 -Wall 
 
 
 all:

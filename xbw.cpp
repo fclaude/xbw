@@ -87,7 +87,8 @@ void XBW::getChildren(const uint n, uint * ini, uint * fin) const {
   }
   //uint c = alphaTmp[n]; 
   //uint c = alpha->access(n);
-  uint c = get_field(alphaSeq,balpha,n);
+  //uint c = get_field(alphaSeq,balpha,n);
+  uint c = getLabel(n);
   uint r = alpha->rank(c, n);
   uint y = A->select1(c);
   uint z = last->rank1(y-1);
