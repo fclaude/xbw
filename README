@@ -9,6 +9,7 @@ requires libxml++2.6, for installing it in ubuntu do:
 
         sudo apt-get install libxml++2.6-dev libxml++2.6-2 libxml++2.6-doc
 
+This code was writen while visiting Sebastian Maneth and Kim Nguyen in NICTA, Sydney, Australia. 
 
 Example of use:
 
